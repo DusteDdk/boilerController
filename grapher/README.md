@@ -6,4 +6,4 @@ Building:
 bash build.txt
 
 Running:
-nc 192.168.20.109 9000 | while read I; do printf "%03.1f\\n" `echo $I | jq -r .temp`  ; done | ./grapher
+export LC_NUMERIC="en_US.UTF-8"; nc 192.168.20.40 9000 | while read I; do printf "%03.1f\\n" `echo $I | jq -r .temp`  ; done | ./grapher

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <time.h>
 
 #define WIDTH 1280
 #define HEIGHT 800
@@ -46,7 +47,7 @@ int main() {
         win = SDL_CreateWindow("Graph",
                         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                         WIDTH, HEIGHT,
-                        SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP
+                        SDL_WINDOW_SHOWN
                         );
 
         if( win == NULL ) { printf("Couldn't create window: %s\n", SDL_GetError()); }
@@ -61,7 +62,14 @@ int main() {
         screen = SDL_GetWindowSurface(win);
         SDL_Rect rect = { 0,0, 1,LH };
         SDL_Rect lrect = { 0,0, WIDTH, 1 };
+        SDL_Rect hrect = { 0,0, 1, HEIGHT };
         SDL_ShowCursor(SDL_DISABLE);
+
+
+        time_t now = time(NULL);
+        struct tm *now_tm = localtime(&now);
+        int toffset  = (now_tm->tm_min*60 + now_tm->tm_sec)/6;
+        printf("toffset: %i\n", toffset);
         while(1) {
                 fgets(buf, 128, stdin);
                 if(buf[0]==0) {
@@ -117,6 +125,14 @@ int main() {
 
 
                                 for(int i=0; i < DL; i++) {
+                                        if( ( -DL + frame + i +toffset)  % 150 == 0) {
+                                            hrect.x = i;
+                                            if( (-DL + frame+ i+toffset ) % 600 == 0) {
+                                                SDL_FillRect( screen, &hrect, SDL_MapRGB(screen->format, 85,85,85));
+                                            } else {
+                                                SDL_FillRect( screen, &hrect, SDL_MapRGB(screen->format, 55,55,55));
+                                            }
+                                        }
                                         rect.x = i;
                                         rect.y = HEIGHT-LH - (int)(data[i] * ((float)HEIGHT/300.0));
                                         if( data[i] > 89.9 ) {
@@ -124,6 +140,7 @@ int main() {
                                         } else if(data[i] > 10.0) {
                                                 SDL_FillRect( screen, &rect, SDL_MapRGB(screen->format, 66,113,244));
                                         }
+
                                 }
                                 frame++;
                                 fprintf(stderr, "Rendered frame %i\n", frame);
